@@ -1,16 +1,20 @@
-const CACHE_NAME = "task-app-v1";
+const CACHE_NAME = "todo-app-v4";
 
 const FILES_TO_CACHE = [
-  "/",
-  "/index.html",
-  "/style.css",
-  "/script.js",
-  "/manifest.json",
-  "/icon.png"
+  "./",
+  "./index.html",
+  "./style.css",
+  "./script.js",
+  "./manifest.json",
+  "./icon.png",
+  "./icon2.png",
+  "https://cdn.jsdelivr.net/npm/chart.js"
 ];
 
 // INSTALL
 self.addEventListener("install", (event) => {
+  self.skipWaiting();
+
   event.waitUntil(
     caches.open(CACHE_NAME).then((cache) => {
       return cache.addAll(FILES_TO_CACHE);
@@ -29,15 +33,20 @@ self.addEventListener("activate", (event) => {
           }
         })
       );
-    })
+    }).then(() => self.clients.claim())
   );
 });
 
-// FETCH (OFFLINE FIRST)
+// FETCH
 self.addEventListener("fetch", (event) => {
   event.respondWith(
     caches.match(event.request).then((cached) => {
-      return cached || fetch(event.request);
+      return (
+        cached ||
+        fetch(event.request).then((response) => {
+          return response;
+        })
+      );
     })
   );
 });
