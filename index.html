@@ -11,9 +11,11 @@
 
 <link rel="manifest" href="manifest.json">
 <link rel="icon" href="icon.png">
-<link rel="apple-touch-icon" href="icon.png">
+<link rel="apple-touch-icon" sizes="192x192" href="icon.png">
 <meta charset="UTF-8">
 <meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Daily Tracker">
 <meta name="mobile-web-app-capable" content="yes">
 
   <title>Daily Tracker</title>
@@ -26,6 +28,17 @@
   <button onclick="undo()">↩ Undo</button>
 <button onclick="redo()">↪ Redo</button>
   <button id="themeToggle">🌙 Dark Mode</button>
+  <div class="search-box">
+  <input type="text"
+         id="searchInput"
+         placeholder="Cari task..."
+         oninput="searchTask()">
+</div>
+  <div class="filter-box">
+  <button onclick="setFilter('all')">All</button>
+  <button onclick="setFilter('pending')">Pending</button>
+  <button onclick="setFilter('done')">Done</button>
+</div>
   <h2 id="streakText">🔥 Streak: 0 hari</h2>
 
   <div class="add-box">
@@ -46,15 +59,12 @@
 <div id="heatmap"></div>
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
   <script src="script.js"></script>
-  <script src="script.js"></script>
 
 <script>
 if ("serviceWorker" in navigator) {
   navigator.serviceWorker.register("./sw.js");
 }
 </script>
-
-</body>
 
 </body>
 </html>
