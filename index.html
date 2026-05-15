@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600&display=swap" rel="stylesheet">
+
+<link rel="manifest" href="manifest.json">
+<meta name="theme-color" content="#252525">
+
+  <title>Daily Tracker</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+
+<body>
+
+  <h1>Daily Tracker</h1>
+  <button onclick="undo()">↩ Undo</button>
+<button onclick="redo()">↪ Redo</button>
+  <button id="themeToggle">🌙 Dark Mode</button>
+  <h2 id="streakText">🔥 Streak: 0 hari</h2>
+
+  <div class="add-box">
+    <input type="text" id="categoryInput" placeholder="Tambah category">
+    <button onclick="addCategory()">Tambah</button>
+  </div>
+  <!-- Quote Container -->
+<div id="quoteContainer" style="margin: 20px 0; padding: 15px; font-style: italic; color: #555; background: #f9f9f9; border-left: 5px solid #4A90E2; border-radius: 5px;">
+  <p id="quoteText">"Loading wisdom..."</p>
+  <small id="quoteAuthor">- Philosopher</small>
+</div>
+
+
+  <div id="container"></div>
+  <canvas id="statsChart"></canvas>
+  <h2>📅 Activity</h2>
+
+<div id="heatmap"></div>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <script src="script.js"></script>
+
+</body>
+</html>
