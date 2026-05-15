@@ -2,6 +2,8 @@ const container = document.getElementById("container");
 let chart;
 let undoStack = [];
 let redoStack = [];
+let searchValue = "";
+let currentFilter = "all";
 // 1. DATA MANAGEMENT: Mengambil data dalam bentuk Array/Object, bukan HTML mentah
 let appData = JSON.parse(localStorage.getItem("appData")) || [];
 let streakData = JSON.parse(localStorage.getItem("streakData")) || [];
@@ -14,6 +16,15 @@ window.onload = function () {
     updateChart();
     displayRandomQuote();
 };
+
+function searchTask() {
+    searchValue = document.getElementById("searchInput").value.toLowerCase();
+    render();
+}
+function setFilter(filter) {
+    currentFilter = filter;
+    render();
+}
 
 // 2. RENDER FUNCTION: Fungsi untuk membangun UI dari data
 function render() {
@@ -95,6 +106,7 @@ deleteCat.onclick = () => deleteCategory(catIndex);
     if (fromIndex === null || fromIndex === toIndex) return;
 
     const tasks = appData[catIndex].tasks;
+    saveState();
 
     const movedItem = tasks.splice(fromIndex, 1)[0];
     tasks.splice(toIndex, 0, movedItem);
@@ -108,8 +120,12 @@ deleteCat.onclick = () => deleteCategory(catIndex);
 
         category.tasks.forEach((task, taskIndex) => {
 
+    if (currentFilter === "done" && !task.done) return;
+    if (currentFilter === "pending" && task.done) return;
+    if (!task.name.toLowerCase().includes(searchValue)) return;
+
             const taskDiv = document.createElement("div");
-            taskDiv.className = "task";
+            taskDiv.className = task.done ? "task done" : "task";
             taskDiv.draggable = true;
             taskDiv.dataset.index = taskIndex;
             taskDiv.addEventListener("dragstart", () => {
@@ -125,11 +141,28 @@ deleteCat.onclick = () => deleteCategory(catIndex);
             checkbox.checked = task.done;
             checkbox.onchange = () => toggleTask(catIndex, taskIndex);
 
-            const text = document.createElement("span");
-            text.innerText = task.name;
+            const textContainer = document.createElement("div");
+
+const text = document.createElement("span");
+text.innerText = task.name;
+
+const deadline = document.createElement("small");
+deadline.innerText = "📅 " + (task.deadline || "Tidak ada");
+
+if (task.deadline && task.deadline !== "Tidak ada") {
+    const today = new Date().toISOString().split("T")[0];
+
+    if (task.deadline < today && !task.done) {
+        deadline.style.color = "red";
+    }
+}
+
+textContainer.appendChild(text);
+textContainer.appendChild(document.createElement("br"));
+textContainer.appendChild(deadline);
 
             left.appendChild(checkbox);
-            left.appendChild(text);
+            left.appendChild(textContainer);
 
             // RIGHT
             const right = document.createElement("div");
@@ -181,18 +214,25 @@ function addCategory() {
 function addTask(catIndex, input) {
     if (input.value.trim() === "") return;
     saveState();
-    appData[catIndex].tasks.push({ name: input.value, done: false });
-    input.value = ""
+    const deadline = prompt("Masukkan deadline (contoh: 2026-05-20)");
+
+appData[catIndex].tasks.push({
+    name: input.value,
+    done: false,
+    deadline: deadline || "Tidak ada"
+});
+    input.value = "";
     render();
     updateChart();
 }
 
 function toggleTask(catIndex, taskIndex) {
+  saveState();
     appData[catIndex].tasks[taskIndex].done = !appData[catIndex].tasks[taskIndex].done;
     updateStreak();
     render();
     updateChart();
-    saveState();
+    
 }
 
 function editCategory(index, titleElement) {
@@ -233,6 +273,7 @@ function editTask(catIndex, taskIndex, textElement) {
 
     input.addEventListener("keydown", (e) => {
         if (e.key === "Enter") {
+          saveState();
             appData[catIndex].tasks[taskIndex].name = input.value;
             saveData();
             render();
@@ -349,10 +390,6 @@ function displayRandomQuote() {
 }
 
 
-function saveState() {
-    undoStack.push(JSON.stringify(appData));
-    redoStack = [];
-}
 
 
   function undo() {
