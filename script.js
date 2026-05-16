@@ -4,8 +4,11 @@ let undoStack = [];
 let redoStack = [];
 let searchValue = "";
 let currentFilter = "all";
+let currentDate = new Date();
 // 1. DATA MANAGEMENT: Mengambil data dalam bentuk Array/Object, bukan HTML mentah
 let appData = JSON.parse(localStorage.getItem("appData")) || [];
+let habits =
+JSON.parse(localStorage.getItem("habits")) || [];
 let streakData = JSON.parse(localStorage.getItem("streakData")) || [];
 
 // LOAD INITIAL DATA
@@ -15,6 +18,8 @@ window.onload = function () {
     generateHeatmap();
     updateChart();
     displayRandomQuote();
+    generateCalendar();
+    renderHabits();
     renderCalendar();
 
     requestNotificationPermission();
@@ -213,6 +218,7 @@ function addCategory() {
     
     input.value = "";
     render();
+    generateCalendar();
     updateChart();
 }
 
@@ -228,6 +234,7 @@ appData[catIndex].tasks.push({
 });
     input.value = "";
     render();
+    generateCalendar();
     updateChart();
 }
 
@@ -236,6 +243,7 @@ function toggleTask(catIndex, taskIndex) {
     appData[catIndex].tasks[taskIndex].done = !appData[catIndex].tasks[taskIndex].done;
     updateStreak();
     render();
+    generateCalendar();
     updateChart();
     
 }
@@ -265,7 +273,10 @@ function editCategory(index, titleElement) {
 function deleteCategory(index) {
     if (confirm("Hapus category?")) {
         saveState();
-        appData.splice(index, 1); render(); updateChart(); }
+        appData.splice(index, 1);
+        render();
+        generateCalendar();
+        updateChart(); }
 }
 
 function editTask(catIndex, taskIndex, textElement) {
@@ -282,6 +293,7 @@ function editTask(catIndex, taskIndex, textElement) {
             appData[catIndex].tasks[taskIndex].name = input.value;
             saveData();
             render();
+            generateCalendar();
         }
     });
 
@@ -302,6 +314,7 @@ function deleteTask(catIndex, taskIndex) {
         // Simpan perubahan dan render ulang UI agar sinkron
         saveData();
         render();
+        generateCalendar();
         updateChart();
     }
     // Jika user menekan "Cancel", tidak terjadi apa-apa
@@ -548,6 +561,224 @@ function renderCalendar() {
         `;
 
         calendar.appendChild(item);
+    });
+}
+
+function generateCalendar() {
+
+    const calendarGrid = document.getElementById("calendarGrid");
+    const calendarMonth = document.getElementById("calendarMonth");
+
+    if (!calendarGrid) return;
+
+    calendarGrid.innerHTML = "";
+    const dayNames = [
+    "Min", "Sen", "Sel",
+    "Rab", "Kam", "Jum", "Sab"
+];
+
+dayNames.forEach(day => {
+
+    const dayName =
+        document.createElement("div");
+
+    dayName.className = "calendar-day-name";
+
+    dayName.innerText = day;
+
+    calendarGrid.appendChild(dayName);
+});
+
+    const year = currentDate.getFullYear();
+    const month = currentDate.getMonth();
+
+    const monthNames = [
+        "Januari", "Februari", "Maret",
+        "April", "Mei", "Juni",
+        "Juli", "Agustus", "September",
+        "Oktober", "November", "Desember"
+    ];
+
+    calendarMonth.innerText =
+        `${monthNames[month]} ${year}`;
+
+    const firstDay =
+        new Date(year, month, 1).getDay();
+
+    const totalDays =
+        new Date(year, month + 1, 0).getDate();
+
+    // KOSONG SEBELUM TANGGAL 1
+    for (let i = 0; i < firstDay; i++) {
+
+        const empty = document.createElement("div");
+        empty.className = "calendar-day empty";
+
+        calendarGrid.appendChild(empty);
+    }
+
+    // TANGGAL
+    for (let day = 1; day <= totalDays; day++) {
+
+        const dayBox = document.createElement("div");
+        dayBox.className = "calendar-day";
+
+const today =
+    new Date().toISOString().split("T")[0];
+
+if (dateText === today) {
+    dayBox.classList.add("today");
+}
+
+        const dateText =
+            `${year}-${String(month + 1).padStart(2, "0")}-${String(day).padStart(2, "0")}`;
+
+        dayBox.innerHTML = `<strong>${day}</strong>`;
+
+        // CEK TASK
+        appData.forEach(category => {
+
+            category.tasks.forEach(task => {
+
+                if (task.deadline === dateText) {
+
+                    const taskEl =
+                        document.createElement("div");
+
+                    taskEl.className = task.done
+    ? "calendar-task done-task"
+    : "calendar-task";
+
+if (task.deadline < today && !task.done) {
+    taskEl.classList.add("overdue-task");
+}
+
+                    taskEl.innerText = task.name;
+
+                    dayBox.appendChild(taskEl);
+                }
+            });
+        });
+        dayBox.addEventListener("dblclick", () => {
+
+    const taskName =
+        prompt("Tambah task");
+
+    if (!taskName) return;
+
+    if (appData.length === 0) {
+        alert("Buat category dulu");
+        return;
+    }
+
+    appData[0].tasks.push({
+        name: taskName,
+        done: false,
+        deadline: dateText
+    });
+
+    saveData();
+    render();
+    updateChart();
+    generateCalendar();
+});
+        calendarGrid.appendChild(dayBox);
+    }
+}
+
+function changeMonth(step) {
+
+    currentDate.setMonth(
+        currentDate.getMonth() + step
+    );
+
+    generateCalendar();
+}
+
+function addHabit() {
+
+    const input =
+        document.getElementById("habitInput");
+
+    if (input.value.trim() === "") return;
+
+    habits.push({
+        name: input.value,
+        dates: []
+    });
+
+    input.value = "";
+
+    saveHabits();
+    renderHabits();
+}
+
+function toggleHabit(index) {
+
+    const today =
+        new Date().toISOString().split("T")[0];
+
+    const dates = habits[index].dates;
+
+    if (dates.includes(today)) {
+
+        habits[index].dates =
+            dates.filter(d => d !== today);
+
+    } else {
+
+        dates.push(today);
+    }
+
+    saveHabits();
+    renderHabits();
+}
+
+function saveHabits() {
+
+    localStorage.setItem(
+        "habits",
+        JSON.stringify(habits)
+    );
+}
+
+function renderHabits() {
+
+    const container =
+        document.getElementById("habitContainer");
+
+    if (!container) return;
+
+    container.innerHTML = "";
+
+    const today =
+        new Date().toISOString().split("T")[0];
+
+    habits.forEach((habit, index) => {
+
+        const card =
+            document.createElement("div");
+
+        card.className = "habit-card";
+
+        const doneToday =
+            habit.dates.includes(today);
+
+        card.innerHTML = `
+            <div>
+                <h3>${habit.name}</h3>
+                <small>
+                    ${habit.dates.length}
+                    hari selesai
+                </small>
+            </div>
+
+            <button onclick="toggleHabit(${index})">
+                ${doneToday ? "✅" : "⭕"}
+            </button>
+        `;
+
+        container.appendChild(card);
     });
 }
 
