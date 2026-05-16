@@ -377,3 +377,101 @@ button:hover {
 .light-mode .calendar-item {
     background: #f1f1f1;
 }
+
+.calendar-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin: 15px 0;
+}
+
+#calendarGrid {
+    display: grid;
+    grid-template-columns: repeat(7, 1fr);
+    gap: 10px;
+    margin-bottom: 30px;
+}
+
+.calendar-day {
+    background: white;
+    min-height: 90px;
+    padding: 8px;
+    border-radius: 12px;
+    font-size: 12px;
+    overflow: hidden;
+}
+
+.calendar-day strong {
+    display: block;
+    margin-bottom: 5px;
+}
+
+.calendar-task {
+    background: #4A90E2;
+    color: white;
+    padding: 4px;
+    border-radius: 6px;
+    margin-top: 4px;
+    font-size: 10px;
+}
+
+.empty {
+    background: transparent;
+}
+
+.light-mode .calendar-day {
+    background: white;
+    color: black;
+}
+
+.calendar-day-name {
+    text-align: center;
+    font-weight: bold;
+    padding: 10px 0;
+}
+
+.today {
+    border: 2px solid #4A90E2;
+}
+
+.done-task {
+    background: #34c759;
+}
+
+.overdue-task {
+    background: #ff3b30;
+}
+
+.calendar-day:hover {
+    transform: scale(1.03);
+    transition: 0.2s;
+}
+
+.habit-box {
+    display: flex;
+    gap: 10px;
+    margin: 15px 0;
+}
+
+.habit-box input {
+    flex: 1;
+}
+
+.habit-card {
+    background: white;
+    padding: 15px;
+    border-radius: 14px;
+    margin-bottom: 10px;
+
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.habit-card h3 {
+    margin: 0;
+}
+
+.habit-card button {
+    font-size: 20px;
+}
