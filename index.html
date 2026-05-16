@@ -2,7 +2,7 @@
 <html>
 
 <head>
-  <meta name="theme-color" content="#252525">
+  <meta name="theme-color" content="#181818">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -10,8 +10,9 @@
 <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600&display=swap" rel="stylesheet">
 
 <link rel="manifest" href="manifest.json">
-<link rel="icon" href="icon.png">
-<link rel="apple-touch-icon" sizes="192x192" href="icon.png">
+<link rel="icon" href="icon.jpg">
+<meta name="application-name" content="Daily Tracker">
+<link rel="apple-touch-icon" sizes="192x192" href="icon.jpg">
 <meta charset="UTF-8">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
@@ -233,6 +234,17 @@
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 
 <script src="script.js"></script>
+
+<script>
+if ("serviceWorker" in navigator) {
+  window.addEventListener("load", () => {
+    navigator.serviceWorker
+      .register("./sw.js")
+      .then(() => console.log("SW OK"))
+      .catch(err => console.log(err));
+  });
+}
+</script>
 
 
 </body>
