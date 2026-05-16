@@ -354,3 +354,26 @@ button:hover {
 .backup-box button {
     flex: 1;
 }
+
+#calendarView {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    margin: 15px 0;
+}
+
+.calendar-item {
+    padding: 12px;
+    border-radius: 12px;
+    background: #2f2f2f;
+    transition: 0.3s;
+}
+
+.calendar-item.done {
+    opacity: 0.6;
+    text-decoration: line-through;
+}
+
+.light-mode .calendar-item {
+    background: #f1f1f1;
+}
