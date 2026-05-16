@@ -1,4 +1,4 @@
-const CACHE_NAME = "todo-app-v4";
+const CACHE_NAME = "todo-app-v5";
 
 const FILES_TO_CACHE = [
   "./",
@@ -6,7 +6,7 @@ const FILES_TO_CACHE = [
   "./style.css",
   "./script.js",
   "./manifest.json",
-  "./icon.png",
+  "./icon.jpg",
   "./icon2.png",
   "https://cdn.jsdelivr.net/npm/chart.js"
 ];
@@ -43,9 +43,7 @@ self.addEventListener("fetch", (event) => {
     caches.match(event.request).then((cached) => {
       return (
         cached ||
-        fetch(event.request).then((response) => {
-          return response;
-        })
+        fetch(event.request)
       );
     })
   );
