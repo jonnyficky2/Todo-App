@@ -1,5 +1,6 @@
 const container = document.getElementById("container");
 let chart;
+let draggedIndex = null;
 let undoStack = [];
 let redoStack = [];
 let searchValue = "";
@@ -23,10 +24,11 @@ window.onload = function () {
     displayRandomQuote();
     generateCalendar();
     renderHabits();
-    renderCalendar();
+    showSection("home");
 
     requestNotificationPermission();
     checkDeadlines();
+    updateLevel();
 };
 
 function searchTask() {
@@ -36,6 +38,131 @@ function searchTask() {
 function setFilter(filter) {
     currentFilter = filter;
     render();
+}
+
+function showSection(section) {
+
+    // SEMBUNYIKAN SEMUA
+    document.getElementById("homeSection")
+        .style.display = "none";
+
+    document.getElementById("calendarSection")
+        .style.display = "none";
+
+    document.getElementById("habitSection")
+        .style.display = "none";
+
+    document.getElementById("statsSection")
+        .style.display = "none";
+
+    // TAMPILKAN YANG DIPILIH
+    document.getElementById(
+        section + "Section"
+    ).style.display = "block";
+
+    // HAPUS ACTIVE
+    document.querySelectorAll(
+        "#bottomNav button"
+    ).forEach(btn => {
+
+        btn.classList.remove("active-nav");
+
+    });
+
+    // ACTIVE BUTTON
+    const buttons =
+        document.querySelectorAll(
+            "#bottomNav button"
+        );
+
+    if (section === "home") {
+        buttons[0].classList.add("active-nav");
+    }
+
+    if (section === "calendar") {
+        buttons[1].classList.add("active-nav");
+    }
+
+    if (section === "habit") {
+        buttons[2].classList.add("active-nav");
+    }
+
+    if (section === "stats") {
+        buttons[3].classList.add("active-nav");
+    }
+}
+
+
+function getDeadlineStatus(deadline, done) {
+
+    if (!deadline || deadline === "Tidak ada") {
+        return "Tidak ada deadline";
+    }
+
+    if (done) {
+        return "✅ Selesai";
+    }
+
+    const today = new Date();
+    const dueDate = new Date(deadline);
+
+    // hilangkan jam biar akurat
+    today.setHours(0,0,0,0);
+    dueDate.setHours(0,0,0,0);
+
+    const diffTime = dueDate - today;
+    const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+
+    if (diffDays > 1) {
+        return `⏳ ${diffDays} hari lagi`;
+    }
+
+    if (diffDays === 1) {
+        return "📌 Besok";
+    }
+
+    if (diffDays === 0) {
+        return "🔥 Hari ini";
+    }
+
+    return `⚠️ Terlambat ${Math.abs(diffDays)} hari`;
+}
+
+function checkAllTasksCompleted() {
+
+    let allDone = true;
+
+    appData.forEach(category => {
+
+        category.tasks.forEach(task => {
+
+            if (!task.done) {
+                allDone = false;
+            }
+
+        });
+
+    });
+
+    if (
+        allDone &&
+        appData.length > 0
+    ) {
+
+        document.body.classList.add(
+            "celebrate-animation"
+        );
+
+        setTimeout(() => {
+
+            document.body.classList.remove(
+                "celebrate-animation"
+            );
+
+        }, 1000);
+
+        alert("🎉 Semua task selesai!");
+    }
 }
 
 // 2. RENDER FUNCTION: Fungsi untuk membangun UI dari data
@@ -105,7 +232,6 @@ deleteCat.onclick = () => deleteCategory(catIndex);
         // ===== TASK LIST =====
         const taskList = document.createElement("div");
         taskList.className = "task-list";
-        let draggedIndex = null;
         taskList.addEventListener("drop", (e) => {
     e.preventDefault();
 
@@ -159,13 +285,30 @@ const text = document.createElement("span");
 text.innerText = task.name;
 
 const deadline = document.createElement("small");
-deadline.innerText = "📅 " + (task.deadline || "Tidak ada");
 
-if (task.deadline && task.deadline !== "Tidak ada") {
+deadline.innerHTML = `
+📅 ${task.deadline || "Tidak ada"}
+<br>
+${getDeadlineStatus(task.deadline, task.done)}
+`;
+
+if (task.deadline !== "Tidak ada") {
+
     const today = new Date().toISOString().split("T")[0];
 
+    // MERAH = TERLAMBAT
     if (task.deadline < today && !task.done) {
-        deadline.style.color = "red";
+        deadline.style.color = "#ff3b30";
+    }
+
+    // KUNING = HARI INI
+    else if (task.deadline === today && !task.done) {
+        deadline.style.color = "#ffcc00";
+    }
+
+    // HIJAU = SELESAI
+    else if (task.done) {
+        deadline.style.color = "#34c759";
     }
 }
 
@@ -254,6 +397,7 @@ function toggleTask(catIndex, taskIndex) {
     render();
     generateCalendar();
     updateChart();
+    checkAllTasksCompleted();
     
 }
 
@@ -331,7 +475,20 @@ function deleteTask(catIndex, taskIndex) {
 
 // 4. UTILITIES (SAVE, CHART, STREAK)
 function saveData() {
-    localStorage.setItem("appData", JSON.stringify(appData));
+
+    localStorage.setItem(
+        "appData",
+        JSON.stringify(appData)
+    );
+
+    const status =
+        document.getElementById("saveStatus");
+
+    status.innerText = "💾 Menyimpan...";
+
+    setTimeout(() => {
+        status.innerText = "✔ Data tersimpan";
+    }, 500);
 }
 
 function saveState() {
@@ -494,24 +651,6 @@ function requestNotificationPermission() {
     }
 }
 
-function checkDeadlines() {
-    const today = new Date().toISOString().split("T")[0];
-
-    appData.forEach(category => {
-        category.tasks.forEach(task => {
-
-            if (
-                task.deadline &&
-                task.deadline !== "Tidak ada" &&
-                task.deadline <= today &&
-                !task.done
-            ) {
-
-                showNotification(task.name);
-            }
-        });
-    });
-}
 
 function showNotification(taskName) {
 
@@ -632,15 +771,10 @@ dayNames.forEach(day => {
         const dayBox = document.createElement("div");
         dayBox.className = "calendar-day";
 
-const today =
+            
+            const today =
     new Date().toISOString().split("T")[0];
 
-if (dateText === today) {
-    dayBox.classList.add("today");
-}
-
-        const dateText =
-            `${year}-${String(month + 1).padStart(2, "0")}-${String(day).padStart(2, "0")}`;
 
         dayBox.innerHTML = `<strong>${day}</strong>`;
 
@@ -826,8 +960,87 @@ function updateLevel() {
         currentXP + "%";
 }
 
+function checkDeadlines() {
+
+    // cek apakah browser support notif
+    if (!("Notification" in window)) return;
+
+    // minta izin notif
+    Notification.requestPermission();
+
+    const today = new Date();
+    const todayString = today.toISOString().split("T")[0];
+
+    appData.forEach(category => {
+
+        category.tasks.forEach(task => {
+
+            if (
+                task.deadline &&
+                task.deadline !== "Tidak ada" &&
+                !task.done
+            ) {
+
+                // deadline hari ini
+                if (task.deadline === todayString) {
+
+                    new Notification("📌 Deadline Hari Ini", {
+                        body: task.name
+                    });
+                }
+            }
+        });
+
+    });
+
+}
+
+// FLOATING BUTTON
+
+const floatingBtn =
+document.getElementById("floatingAddBtn");
+
+if (floatingBtn) {
+
+    floatingBtn.onclick = function () {
+
+        const input =
+        document.getElementById("categoryInput");
+        input.addEventListener("keydown", (e) => {
+    if (e.key === "Enter") {
+        addTask(catIndex, input);
+    }
+});
+        if (input) {
+
+            input.focus();
+
+            input.scrollIntoView({
+                behavior: "smooth"
+            });
+        }
+    };
+}
+
+// SERVICE WORKER
+
 if ("serviceWorker" in navigator) {
-  navigator.serviceWorker.register("sw.js")
-    .then(() => console.log("Service Worker registered"))
-    .catch(err => console.log("SW error:", err));
+
+    navigator.serviceWorker
+        .register("./sw.js")
+        .then(() => {
+
+            console.log(
+                "Service Worker registered"
+            );
+
+        })
+        .catch(err => {
+
+            console.log(
+                "SW error:",
+                err
+            );
+
+        });
 }
