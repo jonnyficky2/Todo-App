@@ -344,3 +344,13 @@ button:hover {
     background: white;
     color: black;
 }
+
+.backup-box {
+    display: flex;
+    gap: 10px;
+    margin: 15px 0;
+}
+
+.backup-box button {
+    flex: 1;
+}
