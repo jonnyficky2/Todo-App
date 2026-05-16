@@ -15,6 +15,7 @@ window.onload = function () {
     generateHeatmap();
     updateChart();
     displayRandomQuote();
+    renderCalendar();
 
     requestNotificationPermission();
     checkDeadlines();
@@ -199,6 +200,7 @@ textContainer.appendChild(deadline);
     });
 
     saveData();
+    renderCalendar();
 }
 
 
@@ -498,6 +500,55 @@ function showNotification(taskName) {
             icon: "icon.png"
         });
     }
+}
+
+function renderCalendar() {
+
+    const calendar = document.getElementById("calendarView");
+
+    if (!calendar) return;
+
+    calendar.innerHTML = "";
+
+    let tasksWithDeadline = [];
+
+    appData.forEach(category => {
+
+        category.tasks.forEach(task => {
+
+            if (
+                task.deadline &&
+                task.deadline !== "Tidak ada"
+            ) {
+
+                tasksWithDeadline.push({
+                    name: task.name,
+                    deadline: task.deadline,
+                    done: task.done
+                });
+            }
+        });
+    });
+
+    tasksWithDeadline.sort((a, b) =>
+        a.deadline.localeCompare(b.deadline)
+    );
+
+    tasksWithDeadline.forEach(task => {
+
+        const item = document.createElement("div");
+
+        item.className = task.done
+            ? "calendar-item done"
+            : "calendar-item";
+
+        item.innerHTML = `
+            <strong>📅 ${task.deadline}</strong><br>
+            ${task.name}
+        `;
+
+        calendar.appendChild(item);
+    });
 }
 
 if ("serviceWorker" in navigator) {
