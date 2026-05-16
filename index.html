@@ -68,10 +68,33 @@
   <div id="container"></div>
   <canvas id="statsChart"></canvas>
   <h2>📅 Calendar View</h2>
-<div id="calendarView"></div>
+
+<div class="calendar-header">
+  <button onclick="changeMonth(-1)">⬅</button>
+  <h3 id="calendarMonth"></h3>
+  <button onclick="changeMonth(1)">➡</button>
+</div>
+
+<div id="calendarGrid"></div>
   <h2>📅 Activity</h2>
 
 <div id="heatmap"></div>
+<h2>🎯 Habit Tracker</h2>
+
+<div class="habit-box">
+
+  <input
+    type="text"
+    id="habitInput"
+    placeholder="Tambah habit">
+
+  <button onclick="addHabit()">
+    Tambah
+  </button>
+
+</div>
+
+<div id="habitContainer"></div>
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
   <script src="script.js"></script>
 
