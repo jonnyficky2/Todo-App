@@ -417,6 +417,50 @@ function redo() {
     saveData();
 }
 
+function exportData() {
+    const dataStr = JSON.stringify(appData, null, 2);
+
+    const blob = new Blob([dataStr], {
+        type: "application/json"
+    });
+
+    const url = URL.createObjectURL(blob);
+
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = "daily-tracker-backup.json";
+
+    a.click();
+
+    URL.revokeObjectURL(url);
+}
+
+function importData(event) {
+    const file = event.target.files[0];
+
+    if (!file) return;
+
+    const reader = new FileReader();
+
+    reader.onload = function(e) {
+        try {
+            saveState();
+
+            appData = JSON.parse(e.target.result);
+
+            saveData();
+            render();
+            updateChart();
+
+            alert("Data berhasil diimport!");
+        } catch {
+            alert("File tidak valid!");
+        }
+    };
+
+    reader.readAsText(file);
+}
+
 if ("serviceWorker" in navigator) {
   navigator.serviceWorker.register("sw.js")
     .then(() => console.log("Service Worker registered"))
