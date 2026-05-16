@@ -5,6 +5,9 @@ let redoStack = [];
 let searchValue = "";
 let currentFilter = "all";
 let currentDate = new Date();
+
+let xp =
+Number(localStorage.getItem("xp")) || 0;
 // 1. DATA MANAGEMENT: Mengambil data dalam bentuk Array/Object, bukan HTML mentah
 let appData = JSON.parse(localStorage.getItem("appData")) || [];
 let habits =
@@ -241,6 +244,12 @@ appData[catIndex].tasks.push({
 function toggleTask(catIndex, taskIndex) {
   saveState();
     appData[catIndex].tasks[taskIndex].done = !appData[catIndex].tasks[taskIndex].done;
+    if (
+    appData[catIndex]
+    .tasks[taskIndex]
+    .done) {
+    addXP(10);
+}
     updateStreak();
     render();
     generateCalendar();
@@ -711,6 +720,7 @@ function addHabit() {
 
     saveHabits();
     renderHabits();
+    updateLevel();
 }
 
 function toggleHabit(index) {
@@ -732,6 +742,7 @@ function toggleHabit(index) {
 
     saveHabits();
     renderHabits();
+updateLevel();
 }
 
 function saveHabits() {
@@ -780,6 +791,39 @@ function renderHabits() {
 
         container.appendChild(card);
     });
+}
+
+function addXP(amount) {
+
+    xp += amount;
+
+    localStorage.setItem("xp", xp);
+
+    updateLevel();
+}
+
+function updateLevel() {
+
+    const level =
+        Math.floor(xp / 100) + 1;
+
+    const currentXP =
+        xp % 100;
+
+    document.getElementById(
+        "levelText"
+    ).innerText =
+        `🏆 Level ${level}`;
+
+    document.getElementById(
+        "xpText"
+    ).innerText =
+        `${currentXP} / 100 XP`;
+
+    document.getElementById(
+        "xpFill"
+    ).style.width =
+        currentXP + "%";
 }
 
 if ("serviceWorker" in navigator) {
