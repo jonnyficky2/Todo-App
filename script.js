@@ -15,6 +15,9 @@ window.onload = function () {
     generateHeatmap();
     updateChart();
     displayRandomQuote();
+
+    requestNotificationPermission();
+    checkDeadlines();
 };
 
 function searchTask() {
@@ -459,6 +462,42 @@ function importData(event) {
     };
 
     reader.readAsText(file);
+}
+
+function requestNotificationPermission() {
+    if ("Notification" in window) {
+        Notification.requestPermission();
+    }
+}
+
+function checkDeadlines() {
+    const today = new Date().toISOString().split("T")[0];
+
+    appData.forEach(category => {
+        category.tasks.forEach(task => {
+
+            if (
+                task.deadline &&
+                task.deadline !== "Tidak ada" &&
+                task.deadline <= today &&
+                !task.done
+            ) {
+
+                showNotification(task.name);
+            }
+        });
+    });
+}
+
+function showNotification(taskName) {
+
+    if (Notification.permission === "granted") {
+
+        new Notification("⏰ Deadline Task!", {
+            body: taskName + " sudah deadline!",
+            icon: "icon.png"
+        });
+    }
 }
 
 if ("serviceWorker" in navigator) {
