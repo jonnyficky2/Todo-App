@@ -24,8 +24,10 @@
 
 <body>
 
-  <h1>Daily Tracker</h1>
-  <div id="levelBox">
+<h1>Daily Tracker</h1>
+
+<!-- LEVEL -->
+<div id="levelBox">
 
   <h2 id="levelText">
     🏆 Level 1
@@ -40,84 +42,198 @@
   </p>
 
 </div>
+
+<!-- TOP BUTTON -->
+<div class="toolbar">
+
   <button onclick="undo()">↩ Undo</button>
-<button onclick="redo()">↪ Redo</button>
-  <button id="themeToggle">🌙 Dark Mode</button>
-  <div class="backup-box">
-  <button onclick="exportData()">📤 Export</button>
 
-  <input type="file"
-         id="importFile"
-         accept=".json"
-         onchange="importData(event)"
-         hidden>
+  <button onclick="redo()">↪ Redo</button>
 
-  <button onclick="document.getElementById('importFile').click()">
+  <button id="themeToggle">
+    🌙 Dark Mode
+  </button>
+
+</div>
+
+<!-- BACKUP -->
+<div class="backup-box">
+
+  <button onclick="exportData()">
+    📤 Export
+  </button>
+
+  <input
+    type="file"
+    id="importFile"
+    accept=".json"
+    onchange="importData(event)"
+    hidden>
+
+  <button onclick="
+    document
+    .getElementById('importFile')
+    .click()
+  ">
     📥 Import
   </button>
-</div>
-  <div class="search-box">
-  <input type="text"
-         id="searchInput"
-         placeholder="Cari task..."
-         oninput="searchTask()">
-</div>
-  <div class="filter-box">
-  <button onclick="setFilter('all')">All</button>
-  <button onclick="setFilter('pending')">Pending</button>
-  <button onclick="setFilter('done')">Done</button>
-</div>
-  <h2 id="streakText">🔥 Streak: 0 hari</h2>
 
-  <div class="add-box">
-    <input type="text" id="categoryInput" placeholder="Tambah category">
-    <button onclick="addCategory()">Tambah</button>
-  </div>
-  <!-- Quote Container -->
-<div id="quoteContainer" style="margin: 20px 0; padding: 15px; font-style: italic; color: #555; background: #f9f9f9; border-left: 5px solid #4A90E2; border-radius: 5px;">
-  <p id="quoteText">"Loading wisdom..."</p>
-  <small id="quoteAuthor">- Philosopher</small>
 </div>
 
-
-  <div id="container"></div>
-  <canvas id="statsChart"></canvas>
-  <h2>📅 Calendar View</h2>
-
-<div class="calendar-header">
-  <button onclick="changeMonth(-1)">⬅</button>
-  <h3 id="calendarMonth"></h3>
-  <button onclick="changeMonth(1)">➡</button>
-</div>
-
-<div id="calendarGrid"></div>
-  <h2>📅 Activity</h2>
-
-<div id="heatmap"></div>
-<h2>🎯 Habit Tracker</h2>
-
-<div class="habit-box">
+<!-- SEARCH -->
+<div class="search-box">
 
   <input
     type="text"
-    id="habitInput"
-    placeholder="Tambah habit">
+    id="searchInput"
+    placeholder="Cari task..."
+    oninput="searchTask()">
 
-  <button onclick="addHabit()">
+</div>
+
+<!-- FILTER -->
+<div class="filter-box">
+
+  <button onclick="setFilter('all')">
+    All
+  </button>
+
+  <button onclick="setFilter('pending')">
+    Pending
+  </button>
+
+  <button onclick="setFilter('done')">
+    Done
+  </button>
+
+</div>
+
+<h2 id="streakText">
+  🔥 Streak: 0 hari
+</h2>
+
+<!-- ADD CATEGORY -->
+<div class="add-box">
+
+  <input
+    type="text"
+    id="categoryInput"
+    placeholder="Tambah category">
+
+  <button onclick="addCategory()">
     Tambah
   </button>
 
 </div>
 
-<div id="habitContainer"></div>
-  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-  <script src="script.js"></script>
+<!-- QUOTE -->
+<div id="quoteContainer">
 
-<script>
-if ("serviceWorker" in navigator) {
-  navigator.serviceWorker.register("./sw.js");
-}
-</script>
+  <p id="quoteText">
+    "Loading wisdom..."
+  </p>
+
+  <small id="quoteAuthor">
+    - Philosopher
+  </small>
+
+</div>
+
+<!-- HOME -->
+<div id="homeSection">
+  <p id="saveStatus">✔ Data tersimpan</p>
+
+  <div id="container"></div>
+
+  <h2>📅 Activity</h2>
+
+  <div id="heatmap"></div>
+
+</div>
+
+<!-- CALENDAR -->
+<div id="calendarSection">
+
+  <h2>📅 Calendar View</h2>
+
+  <div class="calendar-header">
+
+    <button onclick="changeMonth(-1)">
+      ⬅
+    </button>
+
+    <h3 id="calendarMonth"></h3>
+
+    <button onclick="changeMonth(1)">
+      ➡
+    </button>
+
+  </div>
+
+  <div id="calendarGrid"></div>
+  <div id="calendarView"></div>
+
+</div>
+
+<!-- HABIT -->
+<div id="habitSection">
+
+  <h2>🎯 Habit Tracker</h2>
+
+  <div class="habit-box">
+
+    <input
+      type="text"
+      id="habitInput"
+      placeholder="Tambah habit">
+
+    <button onclick="addHabit()">
+      Tambah
+    </button>
+
+  </div>
+
+  <div id="habitContainer"></div>
+
+</div>
+
+<!-- STATS -->
+<div id="statsSection">
+
+  <canvas id="statsChart"></canvas>
+
+</div>
+
+<!-- FLOAT BUTTON -->
+<button id="floatingAddBtn">
+  +
+</button>
+
+<!-- BOTTOM NAV -->
+<div id="bottomNav">
+
+  <button onclick="showSection('home')">
+    🏠
+  </button>
+
+  <button onclick="showSection('calendar')">
+    📅
+  </button>
+
+  <button onclick="showSection('habit')">
+    🔥
+  </button>
+
+  <button onclick="showSection('stats')">
+    📊
+  </button>
+
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+<script src="script.js"></script>
+
 
 </body>
 </html>
