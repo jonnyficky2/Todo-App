@@ -28,6 +28,19 @@
   <button onclick="undo()">↩ Undo</button>
 <button onclick="redo()">↪ Redo</button>
   <button id="themeToggle">🌙 Dark Mode</button>
+  <div class="backup-box">
+  <button onclick="exportData()">📤 Export</button>
+
+  <input type="file"
+         id="importFile"
+         accept=".json"
+         onchange="importData(event)"
+         hidden>
+
+  <button onclick="document.getElementById('importFile').click()">
+    📥 Import
+  </button>
+</div>
   <div class="search-box">
   <input type="text"
          id="searchInput"
