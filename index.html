@@ -3,6 +3,10 @@
 
 <head>
   <meta name="theme-color" content="#181818">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="Daily Tracker">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -24,6 +28,16 @@
 </head>
 
 <body>
+  
+  <div id="splashScreen">
+
+  <img src="icon.jpg" alt="logo">
+
+  <h1>Daily Tracker</h1>
+
+  <p>Loading...</p>
+
+</div>
 
 <h1>Daily Tracker</h1>
 
@@ -205,6 +219,10 @@
 
 </div>
 
+<button id="installBtn">
+  📲 Install App
+</button>
+
 <!-- FLOAT BUTTON -->
 <button id="floatingAddBtn">
   +
@@ -231,7 +249,58 @@
 
 </div>
 
+<!-- TASK MODAL -->
+
+<div id="taskModal" class="modal">
+
+  <div class="modal-content">
+
+    <h2>Tambah Task</h2>
+
+    <input
+      type="text"
+      id="taskNameInput"
+      placeholder="Nama task">
+
+    <input
+      type="date"
+      id="taskDeadlineInput">
+      
+      <select id="taskPriorityInput">
+
+  <option value="low">
+    🟢 Low Priority
+  </option>
+
+  <option value="medium">
+    🟡 Medium Priority
+  </option>
+
+  <option value="high">
+    🔴 High Priority
+  </option>
+
+</select>
+
+    <div class="modal-actions">
+
+      <button onclick="closeTaskModal()">
+        Batal
+      </button>
+
+      <button onclick="saveTaskModal()">
+        Simpan
+      </button>
+
+    </div>
+
+  </div>
+
+</div>
+
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+<script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
 
 <script src="script.js"></script>
 
@@ -248,4 +317,4 @@ if ("serviceWorker" in navigator) {
 
 
 </body>
-</html>
+  </html>
