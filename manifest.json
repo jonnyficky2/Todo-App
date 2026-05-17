@@ -1,8 +1,11 @@
 {
   "name": "Daily Tracker",
   "short_name": "Tracker",
+  "description": "Task dan habit tracker modern",
   "start_url": "./index.html",
+  "scope": "./",
   "display": "standalone",
+  "orientation": "portrait",
   "background_color": "#181818",
   "theme_color": "#181818",
 
@@ -10,12 +13,14 @@
     {
       "src": "./icon.jpg",
       "sizes": "192x192",
-      "type": "image/jpeg"
+      "type": "image/jpeg",
+      "purpose": "any maskable"
     },
     {
       "src": "./icon2.png",
       "sizes": "512x512",
-      "type": "image/png"
+      "type": "image/png",
+      "purpose": "any maskable"
     }
   ]
 }
