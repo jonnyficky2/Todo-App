@@ -7,6 +7,36 @@ let searchValue = "";
 let currentFilter = "all";
 let currentDate = new Date();
 
+let deferredPrompt;
+
+window.addEventListener(
+  "beforeinstallprompt",
+  (e) => {
+
+    e.preventDefault();
+
+    deferredPrompt = e;
+
+    console.log("Install tersedia");
+  }
+);
+document
+.getElementById("installBtn")
+.addEventListener("click", async () => {
+
+    if (deferredPrompt) {
+
+        deferredPrompt.prompt();
+
+        const choice =
+            await deferredPrompt.userChoice;
+
+        console.log(choice);
+
+        deferredPrompt = null;
+    }
+});
+
 let xp =
 Number(localStorage.getItem("xp")) || 0;
 // 1. DATA MANAGEMENT: Mengambil data dalam bentuk Array/Object, bukan HTML mentah
@@ -15,6 +45,14 @@ let habits =
 JSON.parse(localStorage.getItem("habits")) || [];
 let streakData = JSON.parse(localStorage.getItem("streakData")) || [];
 
+document
+.getElementById("categoryInput")
+.addEventListener("keydown", (e) => {
+
+    if (e.key === "Enter") {
+        addCategory();
+    }
+});
 // LOAD INITIAL DATA
 window.onload = function () {
     render();
@@ -29,6 +67,19 @@ window.onload = function () {
     requestNotificationPermission();
     checkDeadlines();
     updateLevel();
+    
+    const savedTheme =
+localStorage.getItem("theme");
+
+if (savedTheme === "light") {
+
+    document.body.classList.add(
+        "light-mode"
+    );
+
+    themeToggle.innerText =
+        "☀️ Light Mode";
+}
 };
 
 function searchTask() {
@@ -54,8 +105,8 @@ function showSection(section) {
 
     document.getElementById("statsSection")
         .style.display = "none";
-
-    // TAMPILKAN YANG DIPILIH
+        
+       
     document.getElementById(
         section + "Section"
     ).style.display = "block";
@@ -165,6 +216,15 @@ function checkAllTasksCompleted() {
     }
 }
 
+function celebrateTasks() {
+
+    confetti({
+        particleCount: 150,
+        spread: 100,
+        origin: { y: 0.6 }
+    });
+
+}
 // 2. RENDER FUNCTION: Fungsi untuk membangun UI dari data
 function render() {
     container.innerHTML = "";
@@ -219,14 +279,10 @@ deleteCat.onclick = () => deleteCategory(catIndex);
         const inputGroup = document.createElement("div");
         inputGroup.className = "task-input-group";
 
-        const input = document.createElement("input");
-        input.placeholder = "Tambah task";
-
         const addBtn = document.createElement("button");
-        addBtn.innerText = "+";
-        addBtn.onclick = () => addTask(catIndex,input);
+        addBtn.innerText = "+ Add Task";
+        addBtn.onclick = () => openTaskModal(catIndex);
 
-        inputGroup.appendChild(input);
         inputGroup.appendChild(addBtn);
 
         // ===== TASK LIST =====
@@ -263,7 +319,14 @@ deleteCat.onclick = () => deleteCategory(catIndex);
     if (!task.name.toLowerCase().includes(searchValue)) return;
 
             const taskDiv = document.createElement("div");
-            taskDiv.className = task.done ? "task done" : "task";
+            taskDiv.className =
+    task.done
+    ? "task done"
+    : "task";
+
+taskDiv.classList.add(
+    task.priority + "-priority"
+);
             taskDiv.draggable = true;
             taskDiv.dataset.index = taskIndex;
             taskDiv.addEventListener("dragstart", () => {
@@ -359,6 +422,16 @@ textContainer.appendChild(deadline);
 function addCategory() {
     const input = document.getElementById("categoryInput");
     if (input.value.trim() === "") return;
+    const exists = appData.some(
+  cat =>
+  cat.name.toLowerCase() ===
+  input.value.toLowerCase()
+);
+
+if (exists) {
+  alert("Category sudah ada!");
+  return;
+}
     saveState();
     appData.push({ name: input.value, tasks: [] });
     
@@ -368,20 +441,77 @@ function addCategory() {
     updateChart();
 }
 
-function addTask(catIndex, input) {
-    if (input.value.trim() === "") return;
-    saveState();
-    const deadline = prompt("Masukkan deadline (contoh: 2026-05-20)");
+let currentCategoryIndex = null;
 
-appData[catIndex].tasks.push({
-    name: input.value,
+function openTaskModal(catIndex){
+
+    currentCategoryIndex = catIndex;
+
+    document
+        .getElementById("taskModal")
+        .classList
+        .add("show");
+
+    document
+        .getElementById("taskNameInput")
+        .value = "";
+
+    document
+        .getElementById("taskDeadlineInput")
+        .value = "";
+}
+
+function closeTaskModal(){
+
+    document
+        .getElementById("taskModal")
+        .classList
+        .remove("show");
+}
+
+function saveTaskModal(){
+
+    const taskName =
+        document
+        .getElementById("taskNameInput")
+        .value;
+
+    const deadline =
+        document
+        .getElementById("taskDeadlineInput")
+        .value;
+        
+        const priority =
+    document
+    .getElementById("taskPriorityInput")
+    .value;
+
+    if(taskName.trim() === "") return;
+
+    saveState();
+
+    appData[currentCategoryIndex]
+.tasks.push({
+
+    name: taskName,
+
     done: false,
-    deadline: deadline || "Tidak ada"
+
+    deadline:
+        deadline || "Tidak ada",
+
+    priority: priority
 });
-    input.value = "";
+
+    saveData();
+
     render();
+
     generateCalendar();
+
     updateChart();
+
+    closeTaskModal();
 }
 
 function toggleTask(catIndex, taskIndex) {
@@ -392,6 +522,7 @@ function toggleTask(catIndex, taskIndex) {
     .tasks[taskIndex]
     .done) {
     addXP(10);
+    celebrateTasks();
 }
     updateStreak();
     render();
@@ -478,8 +609,9 @@ function saveData() {
 
     localStorage.setItem(
         "appData",
-        JSON.stringify(appData)
-    );
+        JSON.stringify(appData) );
+        showSaving();
+    
 
     const status =
         document.getElementById("saveStatus");
@@ -774,6 +906,13 @@ dayNames.forEach(day => {
             
             const today =
     new Date().toISOString().split("T")[0];
+    const dateText =
+`${year}-${String(month + 1).padStart(2,"0")}-${String(day).padStart(2,"0")}`;
+
+if(dateText === today){
+
+    dayBox.classList.add("today");
+}
 
 
         dayBox.innerHTML = `<strong>${day}</strong>`;
@@ -936,6 +1075,24 @@ function addXP(amount) {
     updateLevel();
 }
 
+function showSaving() {
+
+    const status =
+        document.getElementById("saveStatus");
+
+    status.textContent = "⏳ Menyimpan...";
+    status.classList.add("saving");
+
+    setTimeout(() => {
+
+        status.textContent =
+            "✔ Data tersimpan";
+
+        status.classList.remove("saving");
+
+    }, 800);
+}
+
 function updateLevel() {
 
     const level =
@@ -1006,11 +1163,7 @@ if (floatingBtn) {
 
         const input =
         document.getElementById("categoryInput");
-        input.addEventListener("keydown", (e) => {
-    if (e.key === "Enter") {
-        addTask(catIndex, input);
-    }
-});
+  
         if (input) {
 
             input.focus();
@@ -1022,25 +1175,28 @@ if (floatingBtn) {
     };
 }
 
-// SERVICE WORKER
+// SPLASH SCREEN
 
-if ("serviceWorker" in navigator) {
+window.addEventListener("load", () => {
 
-    navigator.serviceWorker
-        .register("./sw.js")
-        .then(() => {
+    setTimeout(() => {
 
-            console.log(
-                "Service Worker registered"
-            );
+        document
+            .getElementById("splashScreen")
+            .classList
+            .add("splash-hide");
 
-        })
-        .catch(err => {
+    }, 1400);
 
-            console.log(
-                "SW error:",
-                err
-            );
+});
 
-        });
-}
+window.addEventListener("click", (e) => {
+
+    const modal =
+        document.getElementById("taskModal");
+
+    if (e.target === modal) {
+
+        closeTaskModal();
+    }
+});
