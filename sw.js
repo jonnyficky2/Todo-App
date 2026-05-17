@@ -1,50 +1,43 @@
-const CACHE_NAME = "todo-app-v5";
+const CACHE_NAME = "daily-tracker-v1";
 
-const FILES_TO_CACHE = [
+const urlsToCache = [
   "./",
   "./index.html",
   "./style.css",
   "./script.js",
   "./manifest.json",
   "./icon.jpg",
-  "./icon2.png",
-  "https://cdn.jsdelivr.net/npm/chart.js"
+  "./icon2.png"
 ];
 
-// INSTALL
-self.addEventListener("install", (event) => {
-  self.skipWaiting();
-
+self.addEventListener("install", event => {
   event.waitUntil(
-    caches.open(CACHE_NAME).then((cache) => {
-      return cache.addAll(FILES_TO_CACHE);
-    })
+    caches.open(CACHE_NAME)
+      .then(cache => cache.addAll(urlsToCache))
   );
+
+  self.skipWaiting();
 });
 
-// ACTIVATE
-self.addEventListener("activate", (event) => {
+self.addEventListener("activate", event => {
   event.waitUntil(
-    caches.keys().then((keys) => {
-      return Promise.all(
-        keys.map((key) => {
+    caches.keys().then(keys =>
+      Promise.all(
+        keys.map(key => {
           if (key !== CACHE_NAME) {
             return caches.delete(key);
           }
         })
-      );
-    }).then(() => self.clients.claim())
+      )
+    )
   );
+
+  self.clients.claim();
 });
 
-// FETCH
-self.addEventListener("fetch", (event) => {
+self.addEventListener("fetch", event => {
   event.respondWith(
-    caches.match(event.request).then((cached) => {
-      return (
-        cached ||
-        fetch(event.request)
-      );
-    })
+    caches.match(event.request)
+      .then(response => response || fetch(event.request))
   );
 });
