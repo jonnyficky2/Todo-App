@@ -1,4 +1,6 @@
-
+/* =========================
+   RESET
+========================= */
 *{
   margin:0;
   padding:0;
@@ -1160,7 +1162,7 @@ overflow:hidden;
    MODAL
 ========================= */
 
-#taskModal{
+.modal{
 
     position:fixed;
     inset:0;
@@ -1177,7 +1179,7 @@ overflow:hidden;
     z-index:99999;
 }
 
-#taskModal.show{
+.modal.show{
     display:flex;
     animation: fadeModal .2s ease;
 }
@@ -1316,4 +1318,96 @@ input[type="date"]{
 
     box-shadow:
         inset 4px 0 12px rgba(52,199,89,.12);
-   }
+}
+
+/* =========================
+   LIGHT MODE FIX
+========================= */
+
+.light-mode{
+
+    background:#f3f4f6;
+    color:#111;
+}
+
+.light-mode .category,
+.light-mode #levelBox,
+.light-mode .habit-card,
+.light-mode .calendar-day,
+.light-mode #quoteContainer,
+.light-mode .modal-content{
+
+    background:white;
+    color:#111;
+
+    border:1px solid #ddd;
+}
+
+.light-mode .task{
+
+    background:#f9fafb;
+    color:#111;
+
+    border:1px solid #ddd;
+}
+
+.light-mode .task small,
+.light-mode #quoteAuthor,
+.light-mode #xpText,
+.light-mode #streakText{
+
+    color:#555;
+}
+
+.light-mode input,
+.light-mode select{
+
+    background:white;
+    color:#111;
+
+    border:1px solid #ccc;
+}
+
+.light-mode input::placeholder{
+
+    color:#777;
+}
+
+.light-mode .calendar-day-name{
+
+    color:#111;
+}
+
+.light-mode #bottomNav{
+
+    background:rgba(255,255,255,0.9);
+}
+
+.light-mode #bottomNav button{
+
+    color:#555;
+}
+
+.light-mode #bottomNav button.active-nav{
+
+    color:#4A90E2;
+}
+
+.light-mode .modal{
+
+    background:rgba(0,0,0,0.3);
+}
+
+.light-mode #saveStatus{
+
+    background:#e8fff0;
+}
+
+#saveStatus{
+opacity:0;
+transition:.3s;
+}
+
+#saveStatus.show{
+opacity:1;
+  }
