@@ -1,6 +1,7 @@
 const container = document.getElementById("container");
 let chart;
 let draggedIndex = null;
+let draggedData = null;
 let undoStack = [];
 let redoStack = [];
 let searchValue = "";
@@ -20,22 +21,29 @@ window.addEventListener(
     console.log("Install tersedia");
   }
 );
-document
-.getElementById("installBtn")
-.addEventListener("click", async () => {
+const installBtn =
+document.getElementById("installBtn");
 
-    if (deferredPrompt) {
+if (installBtn) {
 
-        deferredPrompt.prompt();
+    installBtn.addEventListener(
+        "click",
+        async () => {
 
-        const choice =
-            await deferredPrompt.userChoice;
+        if (deferredPrompt) {
 
-        console.log(choice);
+            deferredPrompt.prompt();
 
-        deferredPrompt = null;
-    }
-});
+            const choice =
+                await deferredPrompt.userChoice;
+
+            console.log(choice);
+
+            deferredPrompt = null;
+        }
+    });
+}
+
 
 let xp =
 Number(localStorage.getItem("xp")) || 0;
@@ -55,12 +63,11 @@ document
 });
 // LOAD INITIAL DATA
 window.onload = function () {
-    render();
+    refreshUI();
     updateStreakDisplay();
-    generateHeatmap();
-    updateChart();
-    displayRandomQuote();
     generateCalendar();
+    generateHeatmap();
+    displayRandomQuote();
     renderHabits();
     showSection("home");
 
@@ -84,11 +91,11 @@ if (savedTheme === "light") {
 
 function searchTask() {
     searchValue = document.getElementById("searchInput").value.toLowerCase();
-    render();
+    refreshUI();
 }
 function setFilter(filter) {
     currentFilter = filter;
-    render();
+    refreshUI();
 }
 
 function showSection(section) {
@@ -295,7 +302,10 @@ deleteCat.onclick = () => deleteCategory(catIndex);
     if (!targetTask) return;
 
     const toIndex = Number(targetTask.dataset.index);
-    const fromIndex = draggedIndex;
+
+if (!draggedData) return;
+
+const fromIndex = draggedData.taskIndex;
 
     if (fromIndex === null || fromIndex === toIndex) return;
 
@@ -304,9 +314,9 @@ deleteCat.onclick = () => deleteCategory(catIndex);
 
     const movedItem = tasks.splice(fromIndex, 1)[0];
     tasks.splice(toIndex, 0, movedItem);
+    draggedData = null;
 
-    saveData();
-    render();
+    refreshUI();
 });
         taskList.addEventListener("dragover", (e) => {
     e.preventDefault();
@@ -330,7 +340,9 @@ taskDiv.classList.add(
             taskDiv.draggable = true;
             taskDiv.dataset.index = taskIndex;
             taskDiv.addEventListener("dragstart", () => {
+
     draggedIndex = taskIndex;
+
 });
 
             // LEFT
@@ -413,10 +425,19 @@ textContainer.appendChild(deadline);
         container.appendChild(categoryDiv);
     });
 
-    saveData();
     renderCalendar();
 }
 
+function refreshUI() {
+
+    render();
+
+    updateChart();
+
+    updateLevel();
+
+    saveData();
+}
 
 // 3. ACTIONS (TAMBAH, EDIT, HAPUS)
 function addCategory() {
@@ -433,12 +454,11 @@ if (exists) {
   return;
 }
     saveState();
+    console.log("Tambah category:", input.value)
     appData.push({ name: input.value, tasks: [] });
     
     input.value = "";
-    render();
-    generateCalendar();
-    updateChart();
+    refreshUI();
 }
 
 let currentCategoryIndex = null;
@@ -459,7 +479,12 @@ function openTaskModal(catIndex){
     document
         .getElementById("taskDeadlineInput")
         .value = "";
+
+    document
+        .getElementById("taskPriorityInput")
+        .value = "low";
 }
+
 
 function closeTaskModal(){
 
@@ -505,11 +530,7 @@ function saveTaskModal(){
 
     saveData();
 
-    render();
-
-    generateCalendar();
-
-    updateChart();
+    refreshUI();
 
     closeTaskModal();
 }
@@ -525,9 +546,7 @@ function toggleTask(catIndex, taskIndex) {
     celebrateTasks();
 }
     updateStreak();
-    render();
-    generateCalendar();
-    updateChart();
+    refreshUI();
     checkAllTasksCompleted();
     
 }
@@ -545,24 +564,28 @@ function editCategory(index, titleElement) {
           saveState();
             appData[index].name = input.value;
             saveData();
-            render();
+            refreshUI();
         }
     });
 
     input.addEventListener("blur", () => {
-        render(); // kalau klik keluar tanpa save
+        refreshUI(); // kalau klik keluar tanpa save
     });
 }
 
 function deleteCategory(index) {
-    if (confirm("Hapus category?")) {
-        saveState();
-        appData.splice(index, 1);
-        render();
-        generateCalendar();
-        updateChart(); }
-}
 
+    if (confirm("Hapus category?")) {
+
+        saveState();
+
+        console.log("Hapus:", appData[index]);
+
+        appData.splice(index, 1);
+
+        refreshUI();
+    }
+}
 function editTask(catIndex, taskIndex, textElement) {
     const input = document.createElement("input");
     input.value = appData[catIndex].tasks[taskIndex].name;
@@ -576,13 +599,12 @@ function editTask(catIndex, taskIndex, textElement) {
           saveState();
             appData[catIndex].tasks[taskIndex].name = input.value;
             saveData();
-            render();
-            generateCalendar();
+            refreshUI();
         }
     });
 
     input.addEventListener("blur", () => {
-        render();
+        refreshUI();
     });
 }
 
@@ -597,9 +619,7 @@ function deleteTask(catIndex, taskIndex) {
         
         // Simpan perubahan dan render ulang UI agar sinkron
         saveData();
-        render();
-        generateCalendar();
-        updateChart();
+        refreshUI();
     }
     // Jika user menekan "Cancel", tidak terjadi apa-apa
 }
@@ -624,7 +644,16 @@ function saveData() {
 }
 
 function saveState() {
-    undoStack.push(JSON.stringify(appData));
+
+    undoStack.push(
+        JSON.stringify(appData)
+    );
+
+    if (undoStack.length > 30) {
+
+        undoStack.shift();
+    }
+
     redoStack = [];
 }
 
@@ -639,8 +668,10 @@ function updateChart() {
         return total === 0 ? 0 : Math.round((done / total) * 100);
     });
 
-    if (chart) chart.destroy();
-    chart = new Chart(ctx, {
+    chart?.destroy();
+    if (typeof Chart === "undefined") return;
+
+chart = new Chart(ctx, {
         type: 'bar',
         data: { labels: labels, datasets: [{ label: 'Progress %', data: data, backgroundColor: '#4A90E2' }] },
         options: { responsive: true, scales: { y: { beginAtZero: true, max: 100 } } }
@@ -678,12 +709,34 @@ dayBox.title = `Tanggal: ${dateString}`;
     }
 }
 // THEME TOGGLE
-const themeToggle = document.getElementById("themeToggle");
-themeToggle.onclick = function () {
-    document.body.classList.toggle("light-mode");
-    const mode = document.body.classList.contains("light-mode") ? "light" : "dark";
-    localStorage.setItem("theme", mode);
-    themeToggle.innerText = mode === "light" ? "☀️ Light Mode" : "🌙 Dark Mode";
+const themeToggle =
+document.getElementById("themeToggle");
+
+if (themeToggle) {
+
+    themeToggle.onclick = function () {
+
+        document.body.classList.toggle(
+            "light-mode"
+        );
+
+        const mode =
+document.body.classList.contains(
+"light-mode"
+)
+? "light"
+: "dark";
+
+        localStorage.setItem(
+            "theme",
+            mode
+        );
+
+        themeToggle.innerText =
+mode === "light"
+? "☀️ Light Mode"
+: "🌙 Dark Mode";
+    };
 }
 
 
@@ -715,7 +768,7 @@ function displayRandomQuote() {
 
     appData = JSON.parse(undoStack.pop());
 
-    render();
+    refreshUI();
     updateChart();
     saveData();
     
@@ -728,7 +781,7 @@ function redo() {
 
     appData = JSON.parse(redoStack.pop());
 
-    render();
+    refreshUI();
     updateChart();
     saveData();
 }
@@ -765,7 +818,7 @@ function importData(event) {
             appData = JSON.parse(e.target.result);
 
             saveData();
-            render();
+            refreshUI();
             updateChart();
 
             alert("Data berhasil diimport!");
@@ -785,7 +838,7 @@ function requestNotificationPermission() {
 
 
 function showNotification(taskName) {
-
+    
     if (Notification.permission === "granted") {
 
         new Notification("⏰ Deadline Task!", {
@@ -956,13 +1009,12 @@ if (task.deadline < today && !task.done) {
     appData[0].tasks.push({
         name: taskName,
         done: false,
-        deadline: dateText
+        deadline: dateText,
+        priority: "low"
     });
 
     saveData();
-    render();
-    updateChart();
-    generateCalendar();
+    refreshUI();
 });
         calendarGrid.appendChild(dayBox);
     }
@@ -1080,17 +1132,22 @@ function showSaving() {
     const status =
         document.getElementById("saveStatus");
 
+    status.classList.add("show");
+
     status.textContent = "⏳ Menyimpan...";
-    status.classList.add("saving");
 
     setTimeout(() => {
 
         status.textContent =
             "✔ Data tersimpan";
 
-        status.classList.remove("saving");
+    }, 500);
 
-    }, 800);
+    setTimeout(() => {
+
+        status.classList.remove("show");
+
+    }, 2000);
 }
 
 function updateLevel() {
@@ -1140,10 +1197,23 @@ function checkDeadlines() {
 
                 // deadline hari ini
                 if (task.deadline === todayString) {
+                  const notifKey =
+"notif_" + task.name + "_" + todayString;
 
-                    new Notification("📌 Deadline Hari Ini", {
-                        body: task.name
-                    });
+const notified =
+localStorage.getItem(notifKey);
+
+if (!notified) {
+
+    new Notification("📌 Deadline Hari Ini", {
+        body: task.name
+    });
+
+    localStorage.setItem(
+        notifKey,
+        "yes"
+    );
+}
                 }
             }
         });
@@ -1177,17 +1247,19 @@ if (floatingBtn) {
 
 // SPLASH SCREEN
 
-window.addEventListener("load", () => {
+document.addEventListener("DOMContentLoaded", () => {
 
-    setTimeout(() => {
+    const splash =
+        document.getElementById("splashScreen");
 
-        document
-            .getElementById("splashScreen")
-            .classList
-            .add("splash-hide");
+    if (splash) {
 
-    }, 1400);
+        setTimeout(() => {
 
+            splash.classList.add("splash-hide");
+
+        }, 1400);
+    }
 });
 
 window.addEventListener("click", (e) => {
