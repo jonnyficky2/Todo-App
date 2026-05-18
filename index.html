@@ -3,21 +3,26 @@
 
 <head>
   <meta name="theme-color" content="#181818">
-  <meta name="apple-mobile-web-app-capable" content="yes">
-<meta name="apple-mobile-web-app-status-bar-style" content="black">
-<meta name="mobile-web-app-capable" content="yes">
-<meta name="apple-mobile-web-app-title" content="Daily Tracker">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link
+  rel="preload"
+  as="style"
+  href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600&display=swap">
 
-<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600&display=swap" rel="stylesheet">
+<link
+  rel="stylesheet"
+  href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600&display=swap">
 
 <link rel="manifest" href="manifest.json">
 <link rel="icon" href="icon.jpg">
 <meta name="application-name" content="Daily Tracker">
 <link rel="apple-touch-icon" sizes="192x192" href="icon.jpg">
 <meta charset="UTF-8">
+<meta
+  name="description"
+  content="Daily Tracker productivity app with task management, habit tracker, calendar, streak, and statistics.">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <meta name="apple-mobile-web-app-title" content="Daily Tracker">
@@ -231,7 +236,8 @@
 <!-- BOTTOM NAV -->
 <div id="bottomNav">
 
-  <button onclick="showSection('home')">
+  <button aria-label="home"
+  onclick="showSection('home')">
     🏠
   </button>
 
@@ -298,11 +304,19 @@
 
 </div>
 
-<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 
 <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
 
-<script src="script.js"></script>
+<script
+  src="https://cdn.jsdelivr.net/npm/chart.js">
+</script>
+
+<script defer src="script.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/eruda"></script>
+
+<script>
+eruda.init();
+</script>
 
 <script>
 if ("serviceWorker" in navigator) {
@@ -315,6 +329,10 @@ if ("serviceWorker" in navigator) {
 }
 </script>
 
+<noscript>
+  Aplikasi ini membutuhkan JavaScript untuk berjalan.
+</noscript>
+
 
 </body>
-  </html>
+</html>
