@@ -44,6 +44,10 @@ const container =
 window.addEventListener(
   "DOMContentLoaded",
   () => {
+    if("Notification" in window){
+
+  Notification.requestPermission();
+}
     resetHabitsDaily();
     refreshUI();
 
@@ -274,11 +278,66 @@ taskDiv.addEventListener(
               taskIndex
             );
 
-          const text =
-            document.createElement("span");
+          const textWrapper =
+  document.createElement("div");
 
-          text.innerText =
-            task.name;
+const text =
+  document.createElement("span");
+
+text.innerText =
+  task.name;
+
+textWrapper.appendChild(text);
+
+/* DEADLINE */
+
+if(task.deadline){
+
+  const deadlineText =
+    document.createElement("div");
+
+  deadlineText.className =
+    "deadline-warning";
+
+  const today =
+    new Date();
+
+  const deadline =
+    new Date(task.deadline);
+
+  const diff =
+    Math.ceil(
+      (
+        deadline - today
+      ) / (1000*60*60*24)
+    );
+
+  if(diff < 0){
+
+    deadlineText.classList.add(
+      "overdue"
+    );
+
+    deadlineText.innerText =
+      "⚠️ Deadline lewat";
+
+  }else if(diff === 0){
+
+    deadlineText.innerText =
+      "⏰ Deadline hari ini";
+
+  }else{
+
+    deadlineText.innerText =
+      `📅 ${diff} hari lagi`;
+  }
+
+  textWrapper.appendChild(
+    deadlineText
+  );
+}
+
+
 
           left.append(
             checkbox,
@@ -654,9 +713,9 @@ function updateLevel() {
    CHART
 ========================= */
 
-function updateChart() {
+function updateChart(){
 
-  if (typeof Chart === "undefined")
+  if(typeof Chart === "undefined")
     return;
 
   const canvas =
@@ -664,7 +723,7 @@ function updateChart() {
       "statsChart"
     );
 
-  if (!canvas) return;
+  if(!canvas) return;
 
   const labels =
     state.appData.map(
@@ -672,14 +731,14 @@ function updateChart() {
     );
 
   const data =
-    state.appData.map(c => {
+    state.appData.map(c=>{
 
       const total =
         c.tasks.length;
 
       const done =
         c.tasks.filter(
-          t => t.done
+          t=>t.done
         ).length;
 
       return total
@@ -689,21 +748,108 @@ function updateChart() {
         : 0;
     });
 
-  if (chart) {
+  if(chart){
     chart.destroy();
   }
 
   chart = new Chart(canvas, {
+
     type: "bar",
 
     data: {
+
       labels,
 
       datasets: [{
+
         label: "Progress %",
 
-        data
+        data,
+
+        borderRadius: 12,
+
+        borderSkipped: false,
+
+        backgroundColor: [
+          "#38bdf8",
+          "#22c55e",
+          "#f59e0b",
+          "#ef4444",
+          "#8b5cf6"
+        ]
       }]
+    },
+
+    options: {
+
+      responsive: true,
+
+      maintainAspectRatio: false,
+
+      animation: {
+
+        duration: 1200,
+
+        easing: "easeOutQuart"
+      },
+
+      plugins: {
+
+        legend: {
+
+          labels: {
+
+            color:
+              document.body.classList.contains(
+                "light-mode"
+              )
+              ? "#111"
+              : "#fff"
+          }
+        }
+      },
+
+      scales: {
+
+        y: {
+
+          beginAtZero: true,
+
+          max: 100,
+
+          ticks: {
+
+            color:
+              document.body.classList.contains(
+                "light-mode"
+              )
+              ? "#111"
+              : "#fff"
+          },
+
+          grid: {
+            color:
+              "rgba(255,255,255,0.08)"
+          }
+        },
+
+        x: {
+
+          ticks: {
+
+            color:
+              document.body.classList.contains(
+                "light-mode"
+              )
+              ? "#111"
+              : "#fff"
+          },
+
+          grid: {
+            display: false
+          }
+        }
+      }
     }
   });
 }
@@ -1140,6 +1286,33 @@ function redo() {
 }
 
 /* =========================
+   TOAST
+========================= */
+
+function showToast(message){
+
+  const toast =
+    document.getElementById(
+      "toast"
+    );
+
+  toast.innerText =
+    message;
+
+  toast.classList.add(
+    "show"
+  );
+
+  setTimeout(() => {
+
+    toast.classList.remove(
+      "show"
+    );
+
+  },2500);
+}
+
+/* =========================
    EFFECT
 ========================= */
 
@@ -1316,7 +1489,7 @@ function renderCalendar() {
           }
 
           taskEl.innerText =
-            task.name;
+  `${category.name} • ${task.name}`;
 
           dayBox.appendChild(taskEl);
         }
@@ -1432,4 +1605,58 @@ document
     }
   );
   
+  /* =========================
+   TASK REMINDER
+========================= */
+
+function checkDeadlines(){
+
+  if(
+    Notification.permission !==
+    "granted"
+  ) return;
+
+  const today =
+    new Date();
+
+  state.appData.forEach(category=>{
+
+    category.tasks.forEach(task=>{
+
+      if(
+        task.done ||
+        !task.deadline
+      ) return;
+
+      const deadline =
+        new Date(task.deadline);
+
+      const diff =
+        Math.ceil(
+          (
+            deadline - today
+          ) / (1000*60*60*24)
+        );
+
+      if(diff === 0){
+
+        new Notification(
+          "⏰ Deadline Hari Ini",
+          {
+            body:task.name
+          }
+        );
+
+        showToast(
+          "Deadline hari ini!"
+        );
+      }
+    });
+  });
+}
+
+setInterval(
+  checkDeadlines,
+  60000
+);
   
