@@ -1,4 +1,6 @@
-
+/* =========================
+   RESET
+========================= */
 
 *{
   margin:0;
@@ -733,16 +735,24 @@ body.light-mode .day-box{
   margin-top:20px;
 }
 
+/* =========================
+   STATS CHART FIX
+========================= */
+
 #statsChart{
 
-  margin-top:20px;
+  width:100% !important;
 
-  padding:15px;
+  height:260px !important;
+
+  max-height:260px;
+
+  background:
+    rgba(255,255,255,0.05);
 
   border-radius:24px;
 
-  background:
-    rgba(255,255,255,.05);
+  padding:15px;
 }
 
 /* =========================
@@ -1341,6 +1351,10 @@ body.light-mode .task:hover{
 .calendar-task{
 
   background:
+  font-weight:600;
+
+box-shadow:
+  0 4px 10px rgba(0,0,0,.15);
     linear-gradient(
       135deg,
       var(--primary),
@@ -1526,4 +1540,99 @@ body.light-mode .task:hover{
 
     width:94%;
   }
-     }
+}
+
+/* ========================================
+   DEADLINE WARNING
+======================================== */
+
+.deadline-warning{
+
+  margin-top:8px;
+
+  font-size:12px;
+
+  font-weight:600;
+
+  color:#facc15;
+}
+
+.overdue{
+
+  color:#ef4444;
+}
+
+/* ========================================
+   TOAST
+======================================== */
+
+#toast{
+
+  position:fixed;
+
+  top:20px;
+  left:50%;
+
+  transform:translateX(-50%);
+
+  background:
+    linear-gradient(
+      135deg,
+      #0ea5e9,
+      #22c55e
+    );
+
+  color:white;
+
+  padding:14px 20px;
+
+  border-radius:18px;
+
+  font-weight:600;
+
+  z-index:999999;
+
+  opacity:0;
+
+  pointer-events:none;
+
+  transition:.3s;
+}
+
+#toast.show{
+
+  opacity:1;
+
+  transform:
+    translateX(-50%)
+    translateY(10px);
+}
+
+/* ========================================
+   CHART ANIMATION
+======================================== */
+
+#statsSection{
+
+  animation:
+    fadeStats .5s ease;
+}
+
+@keyframes fadeStats{
+
+  from{
+
+    opacity:0;
+
+    transform:
+      translateY(20px);
+  }
+
+  to{
+
+    opacity:1;
+
+    transform:
+      translateY(0);
+  }
+  }
