@@ -1,338 +1,583 @@
 <!DOCTYPE html>
-<html>
+<html lang="id">
 
 <head>
-  <meta name="theme-color" content="#181818">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link
-  rel="preload"
-  as="style"
-  href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600&display=swap">
 
-<link
-  rel="stylesheet"
-  href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600&display=swap">
+  <meta charset="UTF-8">
 
-<link rel="manifest" href="manifest.json">
-<link rel="icon" href="icon.jpg">
-<meta name="application-name" content="Daily Tracker">
-<link rel="apple-touch-icon" sizes="192x192" href="icon.jpg">
-<meta charset="UTF-8">
-<meta
-  name="description"
-  content="Daily Tracker productivity app with task management, habit tracker, calendar, streak, and statistics.">
-<meta name="apple-mobile-web-app-capable" content="yes">
-<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-<meta name="apple-mobile-web-app-title" content="Daily Tracker">
-<meta name="mobile-web-app-capable" content="yes">
+  <meta
+    name="viewport"
+    content="width=device-width, initial-scale=1.0">
 
   <title>Daily Tracker</title>
-  <link rel="stylesheet" href="style.css">
+
+  <!-- PWA -->
+  <meta
+    name="theme-color"
+    content="#181818">
+
+  <meta
+    name="mobile-web-app-capable"
+    content="yes">
+
+  <meta
+    name="apple-mobile-web-app-capable"
+    content="yes">
+
+  <meta
+    name="apple-mobile-web-app-status-bar-style"
+    content="black-translucent">
+
+  <meta
+    name="apple-mobile-web-app-title"
+    content="Daily Tracker">
+
+  <link
+    rel="manifest"
+    href="manifest.json">
+
+  <link
+    rel="icon"
+    href="icon.jpg">
+
+  <link
+    rel="apple-touch-icon"
+    href="icon.jpg">
+
+  <!-- FONT -->
+  <link
+    rel="preconnect"
+    href="https://fonts.googleapis.com">
+
+  <link
+    rel="preconnect"
+    href="https://fonts.gstatic.com"
+    crossorigin>
+
+  <link
+    href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap"
+    rel="stylesheet">
+
+  <!-- CSS -->
+  <link
+    rel="stylesheet"
+    href="style.css">
+
 </head>
 
 <body>
-  
+
+  <!-- =========================
+       SPLASH SCREEN
+  ========================== -->
+
   <div id="splashScreen">
 
-  <img src="icon.jpg" alt="logo">
+    <img
+      src="icon.jpg"
+      alt="Logo">
+
+    <h1>Daily Tracker</h1>
+
+    <p>Loading...</p>
+
+  </div>
+
+  <!-- =========================
+       TITLE
+  ========================== -->
 
   <h1>Daily Tracker</h1>
 
-  <p>Loading...</p>
+  <!-- =========================
+       LEVEL
+  ========================== -->
 
-</div>
+  <div id="levelBox">
 
-<h1>Daily Tracker</h1>
+    <h2 id="levelText">
+      🏆 Level 1
+    </h2>
 
-<!-- LEVEL -->
-<div id="levelBox">
+    <div class="xp-bar">
 
-  <h2 id="levelText">
-    🏆 Level 1
+      <div id="xpFill"></div>
+
+    </div>
+
+    <p id="xpText">
+      0 / 100 XP
+    </p>
+
+  </div>
+
+  <!-- =========================
+       TOOLBAR
+  ========================== -->
+
+  <div class="toolbar">
+
+    <button onclick="undo()">
+      ↩ Undo
+    </button>
+
+    <button onclick="redo()">
+      ↪ Redo
+    </button>
+
+    <button id="toggleTheme">
+      🌙 / ☀️
+    </button>
+
+  </div>
+
+  <!-- =========================
+       BACKUP
+  ========================== -->
+
+  <div class="backup-box">
+
+    <button onclick="exportData()">
+      📤 Export
+    </button>
+
+    <input
+      type="file"
+      id="importFile"
+      hidden
+      accept=".json"
+      onchange="importData(event)">
+
+    <button
+      onclick="
+      document
+      .getElementById('importFile')
+      .click()
+      ">
+
+      📥 Import
+
+    </button>
+
+  </div>
+
+  <!-- =========================
+       SEARCH
+  ========================== -->
+
+  <div class="search-box">
+
+    <input
+      type="text"
+      id="searchInput"
+      placeholder="Cari task..."
+      oninput="searchTask()">
+
+  </div>
+
+  <!-- =========================
+       FILTER
+  ========================== -->
+
+  <div class="filter-box">
+
+    <button
+      onclick="setFilter('all')">
+
+      All
+
+    </button>
+
+    <button
+      onclick="setFilter('pending')">
+
+      Pending
+
+    </button>
+
+    <button
+      onclick="setFilter('done')">
+
+      Done
+
+    </button>
+
+  </div>
+
+  <!-- =========================
+       STREAK
+  ========================== -->
+
+  <h2 id="streakText">
+    🔥 Streak: 0 hari
   </h2>
 
-  <div class="xp-bar">
-    <div id="xpFill"></div>
-  </div>
+  <!-- =========================
+       ADD CATEGORY
+  ========================== -->
 
-  <p id="xpText">
-    0 / 100 XP
-  </p>
-
-</div>
-
-<!-- TOP BUTTON -->
-<div class="toolbar">
-
-  <button onclick="undo()">↩ Undo</button>
-
-  <button onclick="redo()">↪ Redo</button>
-
-  <button id="themeToggle">
-    🌙 Dark Mode
-  </button>
-
-</div>
-
-<!-- BACKUP -->
-<div class="backup-box">
-
-  <button onclick="exportData()">
-    📤 Export
-  </button>
-
-  <input
-    type="file"
-    id="importFile"
-    accept=".json"
-    onchange="importData(event)"
-    hidden>
-
-  <button onclick="
-    document
-    .getElementById('importFile')
-    .click()
-  ">
-    📥 Import
-  </button>
-
-</div>
-
-<!-- SEARCH -->
-<div class="search-box">
-
-  <input
-    type="text"
-    id="searchInput"
-    placeholder="Cari task..."
-    oninput="searchTask()">
-
-</div>
-
-<!-- FILTER -->
-<div class="filter-box">
-
-  <button onclick="setFilter('all')">
-    All
-  </button>
-
-  <button onclick="setFilter('pending')">
-    Pending
-  </button>
-
-  <button onclick="setFilter('done')">
-    Done
-  </button>
-
-</div>
-
-<h2 id="streakText">
-  🔥 Streak: 0 hari
-</h2>
-
-<!-- ADD CATEGORY -->
-<div class="add-box">
-
-  <input
-    type="text"
-    id="categoryInput"
-    placeholder="Tambah category">
-
-  <button onclick="addCategory()">
-    Tambah
-  </button>
-
-</div>
-
-<!-- QUOTE -->
-<div id="quoteContainer">
-
-  <p id="quoteText">
-    "Loading wisdom..."
-  </p>
-
-  <small id="quoteAuthor">
-    - Philosopher
-  </small>
-
-</div>
-
-<!-- HOME -->
-<div id="homeSection">
-  <p id="saveStatus">✔ Data tersimpan</p>
-
-  <div id="container"></div>
-
-  <h2>📅 Activity</h2>
-
-  <div id="heatmap"></div>
-
-</div>
-
-<!-- CALENDAR -->
-<div id="calendarSection">
-
-  <h2>📅 Calendar View</h2>
-
-  <div class="calendar-header">
-
-    <button onclick="changeMonth(-1)">
-      ⬅
-    </button>
-
-    <h3 id="calendarMonth"></h3>
-
-    <button onclick="changeMonth(1)">
-      ➡
-    </button>
-
-  </div>
-
-  <div id="calendarGrid"></div>
-  <div id="calendarView"></div>
-
-</div>
-
-<!-- HABIT -->
-<div id="habitSection">
-
-  <h2>🎯 Habit Tracker</h2>
-
-  <div class="habit-box">
+  <div class="add-box">
 
     <input
       type="text"
-      id="habitInput"
-      placeholder="Tambah habit">
+      id="categoryInput"
+      placeholder="Tambah category">
 
-    <button onclick="addHabit()">
+    <button onclick="addCategory()">
+
       Tambah
+
     </button>
 
   </div>
 
-  <div id="habitContainer"></div>
+  <!-- =========================
+       QUOTE
+  ========================== -->
+
+  <div id="quoteContainer">
+
+    <p id="quoteText">
+      "Discipline beats motivation."
+    </p>
+
+    <small id="quoteAuthor">
+      - Daily Tracker
+    </small>
+
+  </div>
+
+  <!-- =========================
+       HOME SECTION
+  ========================== -->
+
+  <div id="homeSection">
+
+    <p id="saveStatus">
+
+      ✔ Data tersimpan
+
+    </p>
+
+    <div id="container"></div>
+
+    <h2>
+      📅 Activity
+    </h2>
+
+    <div id="heatmap"></div>
+
+  </div>
+
+  <!-- =========================
+       CALENDAR SECTION
+  ========================== -->
+
+  <div id="calendarSection">
+
+    <h2>
+      📅 Calendar
+    </h2>
+
+     <div class="calendar-header">
+
+  <button onclick="changeMonth(-1)">
+
+    ⬅
+
+  </button>
+
+  <h3 id="calendarMonth">
+
+    Mei 2026
+
+  </h3>
+
+  <button onclick="changeMonth(1)">
+
+    ➡
+
+  </button>
 
 </div>
 
-<!-- STATS -->
-<div id="statsSection">
+    <div id="calendarGrid"></div>
 
-  <canvas id="statsChart"></canvas>
+    <div id="calendarView"></div>
 
-</div>
+  </div>
 
-<button id="installBtn">
-  📲 Install App
-</button>
+  <!-- =========================
+       HABIT SECTION
+  ========================== -->
 
-<!-- FLOAT BUTTON -->
-<button id="floatingAddBtn">
-  +
-</button>
+  <div id="habitSection">
 
-<!-- BOTTOM NAV -->
-<div id="bottomNav">
+    <h2>
+      🎯 Habit Tracker
+    </h2>
 
-  <button aria-label="home"
-  onclick="showSection('home')">
-    🏠
+    <div class="habit-box">
+
+      <input
+        type="text"
+        id="habitInput"
+        placeholder="Tambah habit">
+
+      <button onclick="addHabit()">
+
+        Tambah
+
+      </button>
+
+    </div>
+
+    <div id="habitContainer"></div>
+
+  </div>
+
+  <!-- =========================
+       STATS SECTION
+  ========================== -->
+
+  <div id="statsSection">
+
+    <h2>
+      📊 Statistics
+    </h2>
+
+    <canvas id="statsChart"></canvas>
+
+  </div>
+
+  <!-- =========================
+       INSTALL BUTTON
+  ========================== -->
+
+  <button id="installBtn">
+
+    📲 Install App
+
   </button>
 
-  <button onclick="showSection('calendar')">
-    📅
+  <!-- =========================
+       FLOAT BUTTON
+  ========================== -->
+
+  <button id="floatingAddBtn">
+
+    +
+
   </button>
 
-  <button onclick="showSection('habit')">
-    🔥
-  </button>
+  <!-- =========================
+       BOTTOM NAV
+  ========================== -->
 
-  <button onclick="showSection('stats')">
-    📊
-  </button>
+  <div id="bottomNav">
 
-</div>
+    <button
+      onclick="showSection('home')">
 
-<!-- TASK MODAL -->
+      🏠
 
-<div id="taskModal" class="modal">
+    </button>
 
-  <div class="modal-content">
+    <button
+      onclick="showSection('calendar')">
 
-    <h2>Tambah Task</h2>
+      📅
 
-    <input
-      type="text"
-      id="taskNameInput"
-      placeholder="Nama task">
+    </button>
 
-    <input
-      type="date"
-      id="taskDeadlineInput">
-      
+    <button
+      onclick="showSection('habit')">
+
+      🔥
+
+    </button>
+
+    <button
+      onclick="showSection('stats')">
+
+      📊
+
+    </button>
+
+  </div>
+
+  <!-- =========================
+       TASK MODAL
+  ========================== -->
+
+  <div
+    id="taskModal"
+    class="modal">
+
+    <div class="modal-content">
+
+      <h2>
+
+        Tambah Task
+
+      </h2>
+
+      <input
+        type="text"
+        id="taskNameInput"
+        placeholder="Nama task">
+
+      <input
+        type="date"
+        id="taskDeadlineInput">
+
       <select id="taskPriorityInput">
 
-  <option value="low">
-    🟢 Low Priority
-  </option>
+        <option value="low">
 
-  <option value="medium">
-    🟡 Medium Priority
-  </option>
+          🟢 Low Priority
 
-  <option value="high">
-    🔴 High Priority
-  </option>
+        </option>
 
-</select>
+        <option value="medium">
 
-    <div class="modal-actions">
+          🟡 Medium Priority
 
-      <button onclick="closeTaskModal()">
-        Batal
-      </button>
+        </option>
 
-      <button onclick="saveTaskModal()">
-        Simpan
-      </button>
+        <option value="high">
+
+          🔴 High Priority
+
+        </option>
+
+      </select>
+
+      <div class="modal-actions">
+
+        <button
+          onclick="closeTaskModal()">
+
+          Batal
+
+        </button>
+
+        <button
+          onclick="saveTaskModal()">
+
+          Simpan
+
+        </button>
+
+      </div>
 
     </div>
 
   </div>
 
-</div>
+  <!-- =========================
+       CONFETTI
+  ========================== -->
 
+  <script
+    src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js">
 
-<script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
+  </script>
 
-<script
-  src="https://cdn.jsdelivr.net/npm/chart.js">
-</script>
+  <!-- =========================
+       CHART JS
+  ========================== -->
 
-<script defer src="script.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/eruda"></script>
+  <script src="./chart.umd.js"></script>
 
-<script>
-eruda.init();
-</script>
+  <!-- =========================
+       MAIN SCRIPT
+  ========================== -->
+  <script src="./quotes.js"></script>
 
-<script>
+  <script
+    defer
+    src="script.js">
+
+  </script>
+
+  <!-- =========================
+       ERUDA DEVTOOLS
+  ========================== -->
+
+  <script>
+
+    if (
+      location.hostname === "localhost"
+    ) {
+
+      const script =
+        document.createElement("script");
+
+      script.src =
+        "https://cdn.jsdelivr.net/npm/eruda";
+
+      script.onload = () =>
+        eruda.init();
+
+      document.body.appendChild(script);
+    }
+
+  </script>
+
+  <!-- =========================
+       SERVICE WORKER
+  ========================== -->
+
+  <script>
+
+    if (
+      "serviceWorker" in navigator
+    ) {
+
+      window.addEventListener(
+        "load",
+        () => {
+
+          navigator
+            .serviceWorker
+            .register("./sw.js")
+            .then(() => {
+
+              console.log(
+                "SW REGISTERED"
+              );
+
+            })
+            .catch(err => {
+
+              console.log(err);
+
+            });
+        }
+      );
+    }
+
+  </script>
+  
+  <script>
 if ("serviceWorker" in navigator) {
-  window.addEventListener("load", () => {
-    navigator.serviceWorker
-      .register("./sw.js")
-      .then(() => console.log("SW OK"))
-      .catch(err => console.log(err));
-  });
+
+  navigator.serviceWorker.register(
+    "./service-worker.js"
+  );
 }
 </script>
 
-<noscript>
-  Aplikasi ini membutuhkan JavaScript untuk berjalan.
-</noscript>
+  <!-- =========================
+       NOSCRIPT
+  ========================== -->
 
+  <noscript>
+
+    Aplikasi membutuhkan JavaScript.
+
+  </noscript>
 
 </body>
 </html>
